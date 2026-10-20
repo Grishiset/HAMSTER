@@ -1,6 +1,6 @@
 /* Офлайн-кэш. Страница и скрипты: сначала сеть (свежая версия), без сети — сохранённая копия.
    Картинки и шрифты: из кэша, обновляются в фоне. */
-const CACHE = 'hamster-v4';
+const CACHE = 'hamster-v5';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
