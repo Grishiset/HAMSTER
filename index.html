@@ -130,6 +130,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
 .skin-btn.current{background:var(--ink);color:var(--cream)}
 .skin-btn.locked{background:#EAD8BD;color:var(--ink-soft)}
 .skin-btn.confirm{background:var(--rose-soft)}
+.ver{font-size:11px;font-weight:900;letter-spacing:.06em;color:var(--cream);text-shadow:var(--outline-sm)}
 .skin.special{background:#F1E4FF}
 .skin.special.sel{background:#FFE6A3}
 .skin-tag{margin-top:-4px;font-size:12px;font-weight:800;color:var(--rose);text-align:center;line-height:1.2}
@@ -215,6 +216,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
     <h1 class="title">Хомяк<span class="amp">и</span>малышка</h1>
     <span class="tag">семь миров ради одной Дашули</span>
     <button class="replay" id="replayIntro" type="button">Смотреть заставку</button>
+    <span class="ver">версия 7</span>
   </div>
   <div class="card">
     <canvas class="princess-peek" id="pStart" aria-label="Дашуля машет рукой"></canvas>
@@ -4062,7 +4064,7 @@ if (DEBUG){
 
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) { r.update(); }).catch(function () {}); });
 }
 </script>
 </body>
