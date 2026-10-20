@@ -130,6 +130,13 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
 .skin-btn.current{background:var(--ink);color:var(--cream)}
 .skin-btn.locked{background:#EAD8BD;color:var(--ink-soft)}
 .skin-btn.confirm{background:var(--rose-soft)}
+.skin.special{background:#F1E4FF}
+.skin.special.sel{background:#FFE6A3}
+.skin-tag{margin-top:-4px;font-size:12px;font-weight:800;color:var(--rose);text-align:center;line-height:1.2}
+.peek-say{position:absolute;right:100px;top:-58px;max-width:min(210px,calc(100% - 116px));margin:0;padding:7px 11px;background:#FFE3EE;border:2.5px solid var(--ink);border-radius:14px;box-shadow:0 2px 0 var(--ink);font-size:13px;font-weight:900;line-height:1.25}
+.peek-say::after{content:"";position:absolute;right:-10px;top:50%;margin-top:-7px;border-style:solid;border-width:7px 0 7px 10px;border-color:transparent transparent transparent var(--ink)}
+.peek-say::before{content:"";position:absolute;right:-6px;top:50%;margin-top:-4.5px;z-index:1;border-style:solid;border-width:4.5px 0 4.5px 7px;border-color:transparent transparent transparent #FFE3EE}
+@media (max-height:690px){.peek-say{display:none}}
 
 .btns.three{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr) minmax(0,1fr)}
 .btn.sm{font-size:15px;padding-inline:6px}
@@ -211,6 +218,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
   </div>
   <div class="card">
     <canvas class="princess-peek" id="pStart" aria-label="Дашуля машет рукой"></canvas>
+    <p class="peek-say" id="pSay"></p>
     <ul class="rules">
       <li><span><b>Тап</b> — прыжок от стены к стене, в полёте — сальто</span></li>
       <li><span><b>Дыра в стене</b> — тоннель: хомяк бежит сам, а ты перепрыгиваешь препятствия</span></li>
@@ -379,7 +387,17 @@ const CHEER = {
     'Я испеку тебе пирог из семечек, только попробуй ещё раз!',
     'Каждый прыжок делает тебя сильнее. Вперёд, мой герой!',
     'Обнимаю тебя! А теперь — выше всех стен на свете!',
-    'Звёздочка подождёт, а я всегда буду ждать тебя!'
+    'Звёздочка подождёт, а я всегда буду ждать тебя!',
+    'Ты мой самый пушистый герой! Попробуем ещё?',
+    'Не грусти, хомячок. Чмок в носик — и вперёд!',
+    'Даже когда ты падаешь, ты падаешь очень мило.',
+    'Я горжусь тобой, даже если стенка оказалась хитрее.',
+    'Давай я заварю тебе чай с семечками, и снова в путь!',
+    'Ты уже лучше, чем в прошлый раз. Я всё видела!',
+    'Мой хомячок самый упорный на свете!',
+    'Отдохни секундочку у меня на ладошке — и прыгай дальше!',
+    'Стены вредные, а ты хороший. Вперёд!',
+    'Я держу за тебя все свои кулачки и пальчики!'
   ],
   spike_thorn: ['Ай-ай, колючки! Давай я поцелую лапку — и прыгаем дальше.'],
   spike_ice: ['Брр, ледяные шипы! Согрею тебе лапки — и снова вверх.'],
@@ -419,27 +437,133 @@ const STAR_LINES = [
   'Дашуля, я достал тебе звёздочку!',
   'Эта звезда — тебе, малышка!',
   'Обещал звезду — держи, Дашуля!',
-  'Звёздочка для самой лучшей девочки на свете!'
+  'Звёздочка для самой лучшей девочки на свете!',
+  'Достал! Она почти такая же яркая, как ты!',
+  'Звёздочка, лети к Дашуле в карманчик!'
 ];
 const STAR_HAPPY = [
   'Ты достал мне звёздочку! Я самая счастливая!',
   'Моя звёздочка! Ты лучший хомяк на свете!',
   'Ты сдержал обещание! Люблю тебя!',
-  'Звезда моя! Побежали выбирать купон?'
+  'Звезда моя! Побежали выбирать купон?',
+  'Я повешу эту звёздочку над кроваткой!',
+  'Звёздочка! Я сейчас расплачусь от счастья!'
 ];
 const COUPONS = [
   { id:'stay',  title:'Чтобы Гриша не бросил',  text:'Гриша остаётся рядом. Навсегда, без права возврата.', price:1 },
   { id:'loyal', title:'Чтобы Гриша не изменил', text:'Верность на всю жизнь. Скреплено печатью хомяка.',    price:1 },
   { id:'kiss',  title:'Поцелуй',                text:'Один поцелуй от Гриши. Предъявить в любой момент.',    price:1 }
 ];
-const NEAR = ['Ещё чуть-чуть — и будет новый рекорд! Я держу за тебя кулачки.', 'Почти рекорд! Ты сможешь, я точно знаю.'];
+const NEAR = [
+  'Ещё чуть-чуть — и будет новый рекорд! Я держу за тебя кулачки.',
+  'Почти рекорд! Ты сможешь, я точно знаю.',
+  'Рекорд был так близко, что я уже начала хлопать!',
+  'Ещё один прыжочек — и рекорд твой, малыш!'
+];
 const HAPPY = [
   'Ура-а! Новый рекорд! Ты мой самый лучший хомяк!',
   'Так высоко ещё никто не забирался! Я тобой горжусь!',
   'Ты настоящий герой! Обнимаю тебя крепко-крепко!',
   'Новый рекорд! Я прыгаю от счастья вместе с тобой!',
-  'Вот это прыжки! Звёздочка уже совсем близко!'
+  'Вот это прыжки! Звёздочка уже совсем близко!',
+  'Рекорд! Тебе положена медаль и сто поцелуйчиков!',
+  'Я всем подружкам расскажу, какой у меня хомяк!',
+  'Новый рекорд! Я так громко пищу от радости!',
+  'Ты сегодня просто супер-хомяк!'
 ];
+const DASH_IDLE = [
+  'Удачи, мой хомячок!',
+  'Я в тебя верю!',
+  'Принеси мне звёздочку!',
+  'Обнимаю перед прыжком!',
+  'Ты самый храбрый!',
+  'Жду тебя наверху!',
+  'Не забывай кушать семечки!',
+  'Я с тобой в каждом мире!',
+  'Чмок на удачу!',
+  'Аккуратнее с колючками, ладно?'
+];
+const START_LINES = [
+  'Дашуля, я достану тебе звёздочку!',
+  'Малышка, смотри, как я умею!',
+  'Полетели! Это всё для Дашули!',
+  'Лапки размяты, сердечко готово!'
+];
+const CHATTER = [
+  'Дашуля, ты сегодня самая красивая!',
+  'Щёчки полные, сердечко тоже!',
+  'Прыг-скок — и я ближе к тебе!',
+  'Интересно, Дашуля сейчас улыбается?',
+  'Этот прыжок — воздушный поцелуй для Дашули!',
+  'Лапки устали, а любовь — нет!',
+  'Я самый влюблённый хомяк на свете!',
+  'Дашуля, ты моя самая сладкая семечка!',
+  'Вот бы обнять Дашулю прямо сейчас!',
+  'Пусть все стены знают: я люблю Дашулю!',
+  'Хвостик трясётся от счастья!',
+  'Пи-пи-пи! Это «люблю» по-хомячьи.',
+  'Если Дашуля смотрит — прыгаю красивее!',
+  'Ни шагу назад, только вверх к малышке!',
+  'Мур… ой, я же хомяк. Всё равно люблю!'
+];
+const SEED_LINES = ['{n} семечек для Дашули!', '{n} семечек! Дашуле на пирожки!', 'Уже {n} семечек — Дашуля будет рада!'];
+const SKIN_TALK = {
+  ksyu: {
+    start: ['Лезу ради BTS! ARMY, вперёд!', 'Говорят, наверху концерт BTS. Я туда!'],
+    love: [
+      'Ещё один мир — ещё ближе к BTS!',
+      'Борахэ! Этот мир — для BTS!',
+      'ARMY никогда не сдаются!',
+      'Если наверху BTS — я долезу!',
+      'Косички держатся, мечта про BTS тоже!',
+      'Каждый прыжок — как танец из клипа BTS!',
+      'Где-то там играет Dynamite, я слышу!',
+      'Семь миров — как семь участников BTS!',
+      'Фиолетовый — мой счастливый цвет. Вперёд!'
+    ],
+    star: ['Звезда! Почти как лайтстик ARMY!', 'Эта звезда сияет фиолетовым — для BTS!'],
+    chatter: ['Борахэ!', 'Ещё чуть-чуть — и автограф BTS мой!', 'Косички, не подведите!', 'Напеваю BTS и прыгаю в ритм!', 'Сюда бы ещё лайтстик…', 'Лезу, пою и не падаю. Почти.'],
+    seeds: ['{n} семечек — коплю на альбом BTS!', '{n} семечек — хватит на фиолетовые бантики!'],
+    dash: ['Ксюша, BTS бы тобой гордились! Ещё разок?', 'ARMY не сдаются, Ксюш! Вперёд!', 'Ксюша, косички — огонь, прыжки тоже!', 'Ксюш, концерт подождёт, а рекорд — нет!']
+  },
+  nastya: {
+    start: ['Лезу ради фембоев! Не отвлекайте, я в телефоне.', 'Говорят, наверху живут фембои. Проверим!'],
+    love: [
+      'Ещё один мир! Фембои, я иду!',
+      'Секунду, дописываю сообщение… и прыгаю!',
+      'Наверху, по слухам, фембои в милых свитерах!',
+      'Телефон не уберу — вдруг фембои напишут!',
+      'Этот мир сниму в сторис!',
+      'Фембои сами себя не найдут!',
+      'Прыгаю и листаю ленту. Многозадачность!',
+      'Наверху связь лучше. И фембои тоже там!',
+      'Заряд 12%, но ради фембоев долезу!'
+    ],
+    star: ['Звезда! Срочно в сторис!', 'Сфоткала звезду — фембои оценят!'],
+    chatter: ['Лайкнула, прыгаю дальше.', 'Ой, чуть не уронила телефон!', 'Стен не вижу, вижу только ленту.', 'Фембои, ждите, я уже близко!', 'Кто вообще смотрит под лапы?', 'Так, где тут ловит вай-фай?'],
+    seeds: ['{n} семечек — на новый чехол!', '{n} семечек — на подписку без рекламы!'],
+    dash: ['Настя, убери телефон — и полетишь выше!', 'Фембои подождут, Насть! Попробуй ещё!', 'Насть, сначала прыжок, потом лента!', 'Настя, стена была не в телефоне, а прямо перед тобой!']
+  },
+  max: {
+    start: ['Зачем лезу? По приколу.', 'Ну полезли, чё.'],
+    love: [
+      'Ещё один мир. По приколу.',
+      'Не знаю зачем, но мне нравится.',
+      'Худи тёплое, настроение огонь.',
+      'Лезу без причины. Это и есть причина.',
+      'Капюшон на месте — можно дальше.',
+      'Просто прикольно прыгать, вот и всё.',
+      'Мам, я на стене. По приколу.',
+      'Чем выше — тем смешнее.',
+      'Синий — цвет спокойствия. Я спокоен.'
+    ],
+    star: ['О, звезда. Прикольно.', 'Взял звезду. Чисто по фану.'],
+    chatter: ['Хех.', 'Прикол.', 'Ну а чё бы и нет.', 'Руки в карманах — шучу, я же прыгаю.', 'Если что, я так и задумал.', 'Норм идём.'],
+    seeds: ['{n} семечек. Зачем? По приколу.', '{n} семечек. Ну норм.'],
+    dash: ['Макс, ну ты даёшь! Ещё разок по приколу?', 'Максим, худи — топ, прыжки тоже!', 'Макс, по приколу или нет — было круто!', 'Макс, падать тоже можно по приколу. Вставай!']
+  }
+};
+const DASH_IDLE_SKIN = { ksyu: 'Ксюша, вперёд за BTS!', nastya: 'Настя, только не урони телефон!', max: 'Макс, давай по приколу!' };
 const LOVE = [
   'Дашуля, этот мир я прошёл ради тебя!',
   'Малышка, я уже на шаг ближе к твоей звёздочке!',
@@ -476,7 +600,17 @@ const LOVE = [
   'Сердечко стучит: Да-шу-ля, Да-шу-ля!',
   'Малышка, ради тебя даже стены кажутся ниже!',
   'Я несу тебе звёздочку и целую охапку любви!',
-  'Дашуля, ты лучше всех семечек, орешков и печенек!'
+  'Дашуля, ты лучше всех семечек, орешков и печенек!',
+  'Малышка, я бы перенёс тебя через все колючки на ручках!',
+  'Дашуля, с тобой даже лава — как тёплая ванночка!',
+  'Мои ушки слышат только твой голос, малышка!',
+  'Дашуля, давай после этого мира пообнимаемся?',
+  'Ты — мой любимый мир из всех семи!',
+  'Малышка, я ради тебя даже зарядку по утрам делаю!',
+  'Дашуля, ты пахнешь как самые вкусные семечки!',
+  'Иду к тебе, малышка, только не уходи никуда!',
+  'Каждая стена шепчет мне: «Лезь к Дашуле!»',
+  'Дашуля, ты моя самая главная награда!'
 ];
 const LOVE_BIO = {
   canyon: ['Снова каньон! Дашуля, я помню, ради кого прыгаю.'],
@@ -499,7 +633,10 @@ const SKINS = [
   { id:'ninja',   name:'Ниндзя',    price:180, fur:'#4A403E', furDk:'#2E2726', belly:'#D9CFC6', cheek:'#C9BEB4', acc:'ninja', ring:'#F2E8DE' },
   { id:'astro',   name:'Космонавт', price:250, fur:'#F1E6D8', furDk:'#C7B6A2', belly:'#FFFFFF', cheek:'#FFF2E6', acc:'helmet' },
   { id:'prince',  name:'Принц',     price:350, fur:'#E9B26E', furDk:'#C3843F', belly:'#FFF4E2', cheek:'#FFE6C4', acc:'crown' },
-  { id:'gold',    name:'Золотой',   price:500, fur:'#F2C94C', furDk:'#C99A1E', belly:'#FFF3B8', cheek:'#FFE88A', acc:'shine' }
+  { id:'gold',    name:'Золотой',   price:500, fur:'#F2C94C', furDk:'#C99A1E', belly:'#FFF3B8', cheek:'#FFE88A', acc:'shine' },
+  { id:'max',     name:'Макс',      price:777,  fur:'#E3A15C', furDk:'#BF7A3A', belly:'#FFF1DE', cheek:'#FFDDB8', acc:'hoodie', tag:'лезет по приколу' },
+  { id:'nastya',  name:'Настя',     price:999,  fur:'#D9B8A0', furDk:'#B08E74', belly:'#FFF6EE', cheek:'#FFE3D6', acc:'phone',  tag:'лезет ради фембоев' },
+  { id:'ksyu',    name:'Ксюша',     price:1313, fur:'#F0C27A', furDk:'#C99A4E', belly:'#FFF6E3', cheek:'#FFE6C2', acc:'braids', tag:'лезет ради BTS' }
 ];
 const skinOf = id => SKINS.find(s => s.id === id) || SKINS[0];
 
@@ -617,13 +754,23 @@ function nextLove(bioId){
   return loveBag.pop();
 }
 function hamsterSay(text, dur){ say = { text, t: 0, dur: dur || 3.6 }; }
+function talkLine(kind, bioId){
+  const T = SKIN_TALK[skinId];
+  if (T && T[kind] && T[kind].length) return pick(T[kind]);
+  if (kind === 'start') return pick(START_LINES);
+  if (kind === 'love') return nextLove(bioId);
+  if (kind === 'star') return pick(STAR_LINES);
+  return pick(CHATTER);
+}
+function seedLine(n){ const T = SKIN_TALK[skinId]; return pick(T && T.seeds ? T.seeds : SEED_LINES).replace('{n}', n); }
+let chatT = 20;
 
 function reset(menu){
   blocks = []; chunks = []; thorns = []; burrs = []; flyers = []; seeds = []; airs = []; icicles = []; lasers = []; devils = [];
   fireballs = []; meteors = []; parts = []; floaters = []; plats = []; walkers = []; fspikes = []; pads = []; lifts = []; jets = [];
   pits = []; rollers = []; leapers = [];
   chunkIdx = 0; vRun = 0;
-  starObj = null; starPlaced = false; runStar = false; unlockedNow = '';
+  starObj = null; starPlaced = false; runStar = false; unlockedNow = ''; chatT = rand(16, 26);
   starAvailRun = diffId === 'hard' || !gotStar[diffId];
   order = []; extendOrder();
   blocks.push({ x: -BW, y: -1400, w: BW * 2, h: 1400, floor: true, bio: 'canyon', tint: BIOMES.canyon.wall, tex: 'strata', decor: [] });
@@ -1243,7 +1390,10 @@ function checkHazards(){
   }
   for (let i = seeds.length - 1; i >= 0; i--){
     const s = seeds[i], dx = px - s.x, dy = py - s.y;
-    if (dx * dx + dy * dy < 400){ seeds.splice(i, 1); runSeeds++; sparkle(s.x, s.y, 6); floatText(s.x, s.y, '+1', SUN); sfx.seed(); }
+    if (dx * dx + dy * dy < 400){
+      seeds.splice(i, 1); runSeeds++; sparkle(s.x, s.y, 6); floatText(s.x, s.y, '+1', SUN); sfx.seed();
+      if (runSeeds % 25 === 0 && !say) hamsterSay(seedLine(runSeeds), 2.4);
+    }
   }
   for (let i = airs.length - 1; i >= 0; i--){
     const a = airs[i], dx = px - a.x, dy = py - a.y;
@@ -1262,7 +1412,7 @@ function collectStar(){
   parts.push({ type: 'ring', x: s.x, y: s.y, life: 0, max: 0.5 }); parts.push({ type: 'ring', x: s.x, y: s.y, life: 0, max: 0.85 });
   floatText(s.x, s.y + 24, '+1 звезда', '#FFE27A');
   banner = { name: 'Звезда!', kicker: 'для Дашули', hint: unlockedNow ? 'Открыт уровень «' + DIFFS[unlockedNow].name + '»' : 'Можно лезть дальше за рекордом', cm: 0, t: 0 };
-  hamsterSay(pick(STAR_LINES), 3.6);
+  hamsterSay(talkLine('star'), 3.6);
   sfx.star();
 }
 function die(c){
@@ -1317,7 +1467,7 @@ function updateParts(dt){
 function onEnterZone(z){
   const b = BIOMES[biomeOfZone(z)];
   banner = { name: b.name, hint: b.hint, cm: z * ZONE_CM, t: 0 };
-  hamsterSay(nextLove(b.id), 4);
+  hamsterSay(talkLine('love', b.id), 4);
   if (b.water){ airT = AIR_MAX; airWarned = false; }
   if (b.id === 'volcano') lava = { zone: z, y: z * ZONE - 380, cap: (z + 1) * ZONE - 30 };
   fbT = 1.8; mtT = 1.8; windT = 1.0;
@@ -1395,6 +1545,7 @@ function update(dt){
     const suitNow = COSMIC.has(curBio.id);
     if (suitNow !== p.suit){ p.suit = suitNow; sparkle(p.x, p.y, 8); if (suitNow){ floatText(p.x, p.y + 24, 'Скафандр!', '#CFF3FF'); sfx.suit(); } }
     const tc = tunnelAt(p.y);
+    if (!say && !tc){ chatT -= dt; if (chatT <= 0){ chatT = rand(20, 34); hamsterSay(talkLine('chatter'), 2.8); } }
     if (tc && !tc.entered && p.mode === 'ground'){
       tc.entered = true;
       if (!tunnelHinted){ tunnelHinted = true; hamsterSay('Тоннель! Тапай, чтобы перепрыгивать', 2.4); }
@@ -2914,7 +3065,23 @@ function ear(x, y, r, a, col){
   cx.restore();
 }
 function paw(x, y, rx, ry, col){ ell(x, y, rx, ry, col, 1.6); }
+function bow(x, y, s){
+  s = s || 1;
+  cx.save(); cx.translate(x, y); cx.scale(s, s); cx.lineJoin = 'round';
+  cx.beginPath(); cx.moveTo(0, 0); cx.lineTo(-5, -3.5); cx.lineTo(-5, 3.5); cx.closePath(); cx.moveTo(0, 0); cx.lineTo(5, -3.5); cx.lineTo(5, 3.5); cx.closePath();
+  cx.fillStyle = '#9B6BE0'; cx.fill(); cx.lineWidth = 1.3; cx.strokeStyle = INK; cx.stroke();
+  ell(0, 0, 1.7, 1.7, '#7A48C6', 1);
+  cx.restore();
+}
+function braid(x0, y0, x1, y1, sway){
+  for (let i = 0; i < 5; i++){
+    const u = (i + 0.5) / 5, x = lerp(x0, x1, u) + Math.sin(u * Math.PI) * sway, y = lerp(y0, y1, u);
+    cx.save(); cx.translate(x, y); cx.rotate(i % 2 ? 0.55 : -0.55); ell(0, 0, 3.4, 2.5, '#6B4A2E', 1.3); cx.restore();
+  }
+  bow(x1 + sway * 0.3, y1 + 2.5, 0.85);
+}
 function accBack(acc, o){
+  if (acc === 'braids'){ braid(-12, -6, -21, 8, o.flutter * 7); braid(-8, -10, -17, 12, o.flutter * 5); return; }
   if (acc === 'scarf'){
     for (let k = 0; k < 2; k++){
       cx.save(); cx.translate(0, 9); cx.rotate(2.35 + k * 0.3 + o.flutter * 0.8);
@@ -2979,6 +3146,36 @@ function accFront(acc, suit){
     case 'shine':
       for (let k = 0; k < 3; k++){ const ph = t * 2.4 + k * 2.1, s = 2 + 1.8 * Math.max(0, Math.sin(ph)); star4(-13 + k * 13, -16 + (k % 2) * 6, s, '#FFF6C9'); }
       break;
+    case 'braids':
+      cx.beginPath(); cx.moveTo(-15, -5); cx.quadraticCurveTo(-11, -16.5, 0, -15.8); cx.quadraticCurveTo(9, -15.2, 12.8, -8.6);
+      cx.lineTo(10.5, -9); cx.lineTo(8.8, -7.6); cx.lineTo(6.8, -9.8); cx.lineTo(4.2, -8.4); cx.lineTo(1.6, -10.4); cx.lineTo(-2, -8.8); cx.lineTo(-6, -9.8); cx.quadraticCurveTo(-11, -8, -15, -5); cx.closePath();
+      cx.fillStyle = '#6B4A2E'; cx.fill(); cx.lineWidth = 1.6; cx.strokeStyle = INK; cx.lineJoin = 'round'; cx.stroke();
+      heart(1.5, -14.2, 3.2, '#9B6BE0', 1.1);
+      break;
+    case 'phone': {
+      const glow = 0.75 + 0.25 * Math.sin(t * 3);
+      const g = cx.createRadialGradient(12, -3, 1, 12, -3, 13);
+      g.addColorStop(0, 'rgba(170,225,255,' + (0.6 * glow).toFixed(2) + ')'); g.addColorStop(1, 'rgba(170,225,255,0)');
+      cx.fillStyle = g; cx.beginPath(); cx.arc(12, -3, 13, 0, TAU); cx.fill();
+      cx.save(); cx.translate(19, -4); cx.rotate(0.12);
+      rr(-4.5, -9, 9, 17, 2.6); cx.fillStyle = '#F48FB1'; cx.fill(); cx.lineWidth = 1.6; cx.strokeStyle = INK; cx.stroke();
+      rr(-3, -7.5, 4.6, 4.6, 1.2); cx.fillStyle = '#2A2F45'; cx.fill();
+      ell(-1.9, -6.3, 0.9, 0.9, '#7FA6D9', 0); ell(-0.2, -4.6, 0.9, 0.9, '#7FA6D9', 0);
+      heart(0.8, 3, 2.4, '#FFFFFF', 0);
+      cx.restore();
+      const ph = mod(t * 0.7, 1); cx.globalAlpha = 1 - ph; heart(23 + ph * 4, -14 - ph * 12, 2.6, '#F25C8A', 1); cx.globalAlpha = 1;
+      break;
+    }
+    case 'hoodie':
+      if (suit) break;
+      cx.save(); cx.translate(-12, -4); cx.rotate(-0.5);
+      ell(0, 0, 6.5, 9.5, '#3E6FD8', 2);
+      ell(1.5, 0.5, 3.2, 6, '#2A4A9C', 0);
+      cx.restore();
+      cx.strokeStyle = '#FFFFFF'; cx.lineWidth = 1.4; cx.lineCap = 'round';
+      cx.beginPath(); cx.moveTo(7.5, 6.8); cx.lineTo(6.8, 12); cx.moveTo(11, 7); cx.lineTo(11.4, 12.2); cx.stroke();
+      ell(6.8, 12.4, 1, 1, '#FFFFFF', 0); ell(11.4, 12.6, 1, 1, '#FFFFFF', 0);
+      break;
   }
 }
 function drawHamsterShape(pose, sk, o){
@@ -3000,6 +3197,7 @@ function drawHamsterShape(pose, sk, o){
     }
     default:      fp1 = [9, 10];  fp2 = [5, 11];   bf = [-7, 12];
   }
+  if (sk.acc === 'phone' && pose !== 'ball' && pose !== 'dead') fp1 = [15.5, 3.5];
   paw(fp2[0], fp2[1], 3, 2.2, pawB);
   if (bf2) paw(bf2[0], bf2[1], 4.5, 2.6, pawB);
   if (suit){
@@ -3018,6 +3216,13 @@ function drawHamsterShape(pose, sk, o){
   ell(5, 8, 11.5, 8, sk.belly, 0);
   ell(9.5, 2.5, 6.4, 5.2, sk.cheek, 0);
   if (sk.acc === 'shine'){ cx.fillStyle = 'rgba(255,255,255,.35)'; cx.beginPath(); cx.ellipse(-4, -6, 7, 3, -0.4, 0, TAU); cx.fill(); }
+  if (sk.acc === 'hoodie' && !suit){
+    cx.fillStyle = '#3E6FD8';
+    cx.beginPath(); cx.moveTo(-20, -22); cx.lineTo(-5, -22); cx.bezierCurveTo(-7, -6, -1, 5, 7, 6.5); cx.quadraticCurveTo(14, 7.5, 20, 5); cx.lineTo(20, 22); cx.lineTo(-20, 22); cx.closePath(); cx.fill();
+    cx.strokeStyle = '#2C55B0'; cx.lineWidth = 1.6; cx.beginPath(); cx.moveTo(-5, -22); cx.bezierCurveTo(-7, -6, -1, 5, 7, 6.5); cx.quadraticCurveTo(14, 7.5, 20, 5); cx.stroke();
+    rr(-5, 8.5, 15, 6, 2); cx.fillStyle = '#2F5BC0'; cx.fill();
+    cx.fillStyle = 'rgba(255,255,255,.85)'; cx.fillRect(-13, 1, 5, 1.6);
+  }
   if (suit){
     cx.fillStyle = '#F2F4F8';
     cx.beginPath(); cx.moveTo(-20, -22); cx.lineTo(-2, -22); cx.bezierCurveTo(-4, -6, 0, 5, 8, 6.5); cx.quadraticCurveTo(14, 7.5, 20, 5); cx.lineTo(20, 22); cx.lineTo(-20, 22); cx.closePath(); cx.fill();
@@ -3095,7 +3300,8 @@ function drawHamsterFront(sk, o){
   if (o.arms === 'up'){ la = [-48, -100]; ra = [48, -100]; }
   else if (o.arms === 'flex'){ la = [-56, -78]; ra = [56, -78]; }
   else { const wv = Math.sin(tt * 7) * 6; la = [-60, -62 + wv]; ra = [60, -64 - wv]; }
-  limb(-30, -54, la[0], la[1], sk.fur, 10); limb(30, -54, ra[0], ra[1], sk.fur, 10);
+  const armCol = sk.acc === 'hoodie' ? '#3E6FD8' : sk.fur;
+  limb(-30, -54, la[0], la[1], armCol, 10); limb(30, -54, ra[0], ra[1], armCol, 10);
   ell(la[0], la[1], 7, 6, C.pink, 2); ell(ra[0], ra[1], 7, 6, C.pink, 2);
   ear(-30, -82, 15, -0.45, sk.furDk); ear(30, -82, 15, 0.45, sk.furDk);
   cx.beginPath(); cx.ellipse(0, -50, 42, 44, 0, 0, TAU); cx.fillStyle = sk.fur; cx.fill();
@@ -3135,6 +3341,37 @@ function drawHamsterFront(sk, o){
     case 'ninja': cx.strokeStyle = INK; cx.lineWidth = 9; cx.beginPath(); cx.moveTo(-40, -76); cx.quadraticCurveTo(0, -86, 40, -76); cx.stroke(); cx.strokeStyle = '#C9372C'; cx.lineWidth = 6; cx.stroke(); break;
     case 'scarf': cx.strokeStyle = INK; cx.lineWidth = 11; cx.beginPath(); cx.moveTo(-34, -30); cx.quadraticCurveTo(0, -20, 34, -30); cx.stroke(); cx.strokeStyle = '#D9433B'; cx.lineWidth = 8; cx.stroke(); break;
     case 'shine': for (let k = 0; k < 3; k++){ const s = 3 + 3 * Math.max(0, Math.sin(tt * 2.4 + k * 2.1)); star4(-40 + k * 40, -100 + (k % 2) * 10, s, '#FFF6C9'); } break;
+    case 'braids': {
+      for (const s of [-1, 1]){
+        for (let i = 0; i < 5; i++){ const u = (i + 0.5) / 5, x = s * (37 + u * 10) + Math.sin(tt * 2 + u * 3) * 1.5, y = -66 + u * 46; cx.save(); cx.translate(x, y); cx.rotate(i % 2 ? 0.5 : -0.5); ell(0, 0, 7, 5, '#6B4A2E', 2); cx.restore(); }
+        bow(s * 48, -16, 2);
+      }
+      cx.beginPath(); cx.moveTo(-41, -60); cx.quadraticCurveTo(-34, -99, 0, -97); cx.quadraticCurveTo(34, -99, 41, -60);
+      cx.lineTo(33, -72); cx.lineTo(26, -70); cx.lineTo(18, -78); cx.lineTo(9, -74); cx.lineTo(0, -80); cx.lineTo(-9, -74); cx.lineTo(-18, -78); cx.lineTo(-26, -70); cx.lineTo(-33, -72); cx.closePath();
+      cx.fillStyle = '#6B4A2E'; cx.fill(); cx.lineWidth = 2.4; cx.strokeStyle = INK; cx.lineJoin = 'round'; cx.stroke();
+      heart(18, -88, 7, '#9B6BE0', 2);
+      break;
+    }
+    case 'phone': {
+      const g = cx.createRadialGradient(0, -62, 2, 0, -62, 34); g.addColorStop(0, 'rgba(170,225,255,.35)'); g.addColorStop(1, 'rgba(170,225,255,0)');
+      cx.fillStyle = g; cx.beginPath(); cx.arc(0, -62, 34, 0, TAU); cx.fill();
+      rr(-15, -58, 30, 40, 6); cx.fillStyle = '#F48FB1'; cx.fill(); cx.lineWidth = 2.4; cx.strokeStyle = INK; cx.stroke();
+      rr(-11, -54, 12, 12, 3); cx.fillStyle = '#2A2F45'; cx.fill();
+      ell(-7.5, -50.5, 2.2, 2.2, '#7FA6D9', 0); ell(-3, -46, 2.2, 2.2, '#7FA6D9', 0);
+      heart(4, -30, 6, '#FFFFFF', 0);
+      ell(-17, -38, 7, 6, C.pink, 2); ell(17, -38, 7, 6, C.pink, 2);
+      break;
+    }
+    case 'hoodie': {
+      cx.save(); cx.beginPath(); cx.ellipse(0, -50, 42, 44, 0, 0, TAU); cx.clip();
+      cx.fillStyle = '#3E6FD8'; cx.fillRect(-50, -36, 100, 40);
+      rr(-18, -22, 36, 13, 4); cx.fillStyle = '#2F5BC0'; cx.fill();
+      cx.restore();
+      rr(-30, -40, 60, 9, 4.5); cx.fillStyle = '#3E6FD8'; cx.fill(); cx.lineWidth = 2.2; cx.strokeStyle = INK; cx.stroke();
+      ell(0, -50, 42, 44, null, 2.6);
+      cx.strokeStyle = '#FFFFFF'; cx.lineWidth = 2.4; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(-8, -33); cx.lineTo(-9, -20); cx.moveTo(8, -33); cx.lineTo(9, -20); cx.stroke();
+      break;
+    }
   }
 }
 const GIRL = { skin:'#FFDCC2', hair:'#6B3F2A', hairHi:'#8E5A3C', dress:'#F48FB1', dressDk:'#D9578C', shoe:'#B8406E' };
@@ -3498,12 +3735,14 @@ function begin(){
   ensureAudio();
   state = 'play'; startEl.hidden = true; hud.hidden = false; lastHud = {};
   banner = { name: BIOMES.canyon.name, hint: BIOMES.canyon.hint, cm: 0, t: 0 };
-  hamsterSay('Дашуля, я достану тебе звёздочку!', 3);
+  hamsterSay(talkLine('start'), 3);
   try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {}); } catch (e) {}
 }
 function pickPhrase(){
   if (runStar) return pick(STAR_HAPPY);
   if (overMood === 'happy') return pick(HAPPY);
+  const T = SKIN_TALK[skinId];
+  if (T && T.dash && Math.random() < 0.5) return pick(T.dash);
   const cm = Math.floor(maxY / UNIT);
   if (best > 0 && cm >= best * 0.85 && cm < best) return pick(NEAR);
   const key = cause === 'thorn' ? 'spike_' + deathStyle : cause;
@@ -3533,7 +3772,7 @@ function restart(){
   if (state !== 'over' || !shopEl.hidden) return;
   reset(false); state = 'play'; overEl.hidden = true; hud.hidden = false; lastHud = {};
   banner = { name: BIOMES.canyon.name, hint: BIOMES.canyon.hint, cm: 0, t: 0 };
-  hamsterSay(nextLove('canyon'), 3);
+  hamsterSay(talkLine('start'), 3);
   updateHud();
 }
 function backToMenu(){
@@ -3566,7 +3805,9 @@ function buildShop(){
     const nm = document.createElement('span'); nm.className = 'skin-name'; nm.textContent = sk.name;
     const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'skin-btn';
     bt.addEventListener('click', () => onSkinBtn(sk, bt));
-    it.appendChild(cv); it.appendChild(nm); it.appendChild(bt);
+    it.appendChild(cv); it.appendChild(nm);
+    if (sk.tag){ const tg = document.createElement('span'); tg.className = 'skin-tag'; tg.textContent = sk.tag; it.appendChild(tg); it.classList.add('special'); }
+    it.appendChild(bt);
     shopList.appendChild(it);
   });
   updateShop();
@@ -3736,12 +3977,18 @@ window.addEventListener('keydown', e => {
 window.addEventListener('resize', resize);
 
 /* ---------- boot ---------- */
-let last = 0;
+let last = 0, idleT = 0;
+function nextIdle(){
+  const el = $('pSay'), pool = DASH_IDLE.slice();
+  if (DASH_IDLE_SKIN[skinId]) pool.push(DASH_IDLE_SKIN[skinId], DASH_IDLE_SKIN[skinId], DASH_IDLE_SKIN[skinId]);
+  let s; do { s = pick(pool); } while (s === el.textContent && pool.length > 1);
+  el.textContent = s;
+}
 function frame(now){
   let dt = last ? (now - last) / 1000 : 0; last = now;
   if (dt > 0.05) dt = 0.05;
   update(dt); render();
-  if (!startEl.hidden) paintGirl(pStart, 'cheer', 'wave');
+  if (!startEl.hidden){ paintGirl(pStart, 'cheer', 'wave'); idleT -= dt; if (idleT <= 0){ idleT = 4.5; nextIdle(); } }
   if (!overEl.hidden) paintGirl(pOver, overMood, 'wave');
   if (!shopEl.hidden){ let i = 0; for (const it of shopList.children){ paintSkin(it.querySelector('canvas'), skinOf(it.dataset.id), i++); } }
   if (!cviewEl.hidden) paintCoupon();
