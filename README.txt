@@ -7,7 +7,7 @@
 1. Выложить папку на любой HTTPS-хостинг, например GitHub Pages:
    - на github.com создать публичный репозиторий (например, hamster);
    - Add file → Upload files → перетащить ВСЁ содержимое этой папки
-     (index.html, sw.js, manifest.webmanifest и папку icons) → Commit;
+     (index.html, sw.js, manifest.webmanifest и три картинки-иконки) → Commit;
    - Settings → Pages → Source: Deploy from a branch, Branch: main, папка / (root) → Save;
    - через 1–2 минуты игра будет по адресу https://ИМЯ.github.io/hamster/
 
