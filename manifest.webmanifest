@@ -1,0 +1,30 @@
+{
+  "name": "Хомяк и малышка",
+  "short_name": "Хомяк",
+  "description": "Хомяк прыгает по стенам семи миров ради звёздочки для Дашули",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#8FD3EE",
+  "theme_color": "#8FD3EE",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
