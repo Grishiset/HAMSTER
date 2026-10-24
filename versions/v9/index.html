@@ -9,9 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="Хомяк">
 <meta name="theme-color" content="#8FD3EE">
 <meta name="format-detection" content="telephone=no">
-<link rel="manifest" href="../manifest.webmanifest">
-<link rel="apple-touch-icon" href="../apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../../icon-192.png">
 
 <title>Хомяк и малышка</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -226,7 +226,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
       <button class="replay" id="replayIntro" type="button">Смотреть заставку</button>
       <button class="replay" id="musicStart" type="button" aria-pressed="true">Музыка: вкл</button>
     </div>
-    <div class="ver-row"><span class="ver">версия 9</span> <button class="ver-back" id="toNew" type="button">вернуть новую версию</button><button class="ver-link" id="oldVer" type="button" hidden>вернуть версию 8</button></div>
+    <div class="ver-row"><span class="ver">версия 9</span></div>
   </div>
   <div class="card">
     <canvas class="princess-peek" id="pStart" aria-label="Дашуля машет рукой"></canvas>
@@ -4432,7 +4432,6 @@ if (DEBUG){
 </script>
 
 
-<style>.ver-back{appearance:none;background:none;border:0;padding:6px 2px;font-family:var(--font-body);font-size:11px;font-weight:900;letter-spacing:.04em;color:var(--cream);text-shadow:var(--outline-sm);text-decoration:underline;text-underline-offset:3px;cursor:pointer;touch-action:manipulation}</style>
-<script>document.getElementById('toNew').addEventListener('click', function (e) { e.stopPropagation(); try { localStorage.setItem('hk_ver', 'new'); } catch (err) {} location.href = '../'; });</script>
+
 </body>
 </html>

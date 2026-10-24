@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<script>window.HK_PWA = true; try { var hv = localStorage.getItem('hk_ver'); if ((hv === '8' || hv === '9') && location.hash !== '#new') location.replace('v' + hv + '/'); } catch (e) {}</script>
+
 <title>Хомяк и малышка</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -144,9 +144,6 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
 .tog:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
 .tog:focus-visible{outline:3px solid var(--rose);outline-offset:3px}
 .tog-ic{display:grid;place-items:center;height:22px}
-.ver-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
-.ver-link{appearance:none;background:none;border:0;padding:6px 2px;font-family:var(--font-body);font-size:11px;font-weight:900;letter-spacing:.04em;color:var(--cream);text-shadow:var(--outline-sm);text-decoration:underline;text-underline-offset:3px;cursor:pointer;touch-action:manipulation}
-.ver-link:focus-visible{outline:3px solid var(--rose);outline-offset:2px;border-radius:6px}
 .skin.special{background:#F1E4FF}
 .skin.special.sel{background:#FFE6A3}
 .skin-tag{margin-top:-4px;font-size:12px;font-weight:800;color:var(--rose);text-align:center;line-height:1.2}
@@ -257,7 +254,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
       <button class="replay" id="musicStart" type="button" aria-pressed="true">Музыка: вкл</button>
       <button class="replay" id="talkStart" type="button" aria-pressed="true">Фразы: вкл</button>
     </div>
-    <div class="ver-row"><span class="ver">версия 10</span><button class="ver-link" id="oldVer" type="button" hidden>вернуть версию 9</button></div>
+    <span class="ver">версия 10</span>
   </div>
   <div class="card">
     <canvas class="princess-peek" id="pStart" aria-label="Дашуля машет рукой"></canvas>
@@ -4358,17 +4355,6 @@ startEl.addEventListener('pointerdown', e => { if (e.target.closest('button, .di
 $('play').addEventListener('click', begin);
 $('shopStart').addEventListener('click', () => openShop('start'));
 $('replayIntro').addEventListener('click', replayIntro);
-/* Откат: в установленной версии на телефоне рядом лежит копия версии 8 (папка v8). Прогресс у них общий. */
-(function(){
-  const b = $('oldVer'); if (!b || !window.HK_PWA) return;
-  b.hidden = false;
-  let armedAt = -1e9;
-  b.addEventListener('click', e => {
-    e.stopPropagation();
-    if (performance.now() - armedAt > 3000){ armedAt = performance.now(); b.textContent = 'точно? нажми ещё раз'; setTimeout(() => { if (performance.now() - armedAt >= 2900) b.textContent = 'вернуть версию 9'; }, 3000); return; }
-    store('hk_ver', '9'); location.href = 'v9/';
-  });
-})();
 for (const b of document.querySelectorAll('.diff-btn')) b.addEventListener('click', () => setDiff(b.dataset.d));
 overEl.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; if (performance.now() - overAt > 550){ e.preventDefault(); ensureAudio(); restart(); } });
 $('again').addEventListener('click', () => { ensureAudio(); restart(); });

@@ -1,7 +1,7 @@
 /* Офлайн-кэш. Страница и скрипты: сначала сеть (свежая версия), без сети — сохранённая копия.
    Картинки и шрифты: из кэша, обновляются в фоне. */
-const CACHE = 'hamster-v7';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './v8/', './v9/'];
+const CACHE = 'hamster-v8';
+const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
@@ -23,7 +23,7 @@ self.addEventListener('fetch', e => {
       return Promise.race([net.catch(() => null), wait]).then(res => {
         if (res && res.ok) return res;
         return cache.match(req, { ignoreSearch: true })
-          .then(hit => hit || (req.mode === 'navigate' && !/\/v\d+\//.test(url.pathname) ? cache.match('./index.html') : null))
+          .then(hit => hit || (req.mode === 'navigate' && !/\/versions\//.test(url.pathname) ? cache.match('./index.html') : null))
           .then(hit => hit || net);
       });
     }));
