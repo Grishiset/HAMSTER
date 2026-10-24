@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<script>window.HK_PWA = true; try { if (localStorage.getItem('hk_ver') === '8' && location.hash !== '#new') location.replace('v8/'); } catch (e) {}</script>
+<script>window.HK_PWA = true; try { var hv = localStorage.getItem('hk_ver'); if ((hv === '8' || hv === '9') && location.hash !== '#new') location.replace('v' + hv + '/'); } catch (e) {}</script>
 <title>Хомяк и малышка</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -134,6 +134,16 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
 .head-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 .hud-r{gap:8px}
 .ver{font-size:11px;font-weight:900;letter-spacing:.06em;color:var(--cream);text-shadow:var(--outline-sm)}
+.sheet.pause{justify-content:center;background:rgba(42,26,18,.55);z-index:4}
+.pause-card{max-width:360px;align-items:stretch}
+.pause-title{margin:0;text-align:center;font-family:var(--font-display);font-weight:800;font-size:30px}
+.pause-say{margin:-4px 0 0;text-align:center;font-weight:800;font-size:14px;color:var(--rose)}
+.toggles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tog{appearance:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 4px 8px;background:var(--cream-2);border:2.5px solid var(--ink);border-radius:14px;box-shadow:0 3px 0 var(--ink);font-family:var(--font-body);font-weight:900;font-size:13px;color:var(--ink);cursor:pointer;touch-action:manipulation}
+.tog[aria-pressed="true"]{background:var(--sunflower)}
+.tog:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.tog:focus-visible{outline:3px solid var(--rose);outline-offset:3px}
+.tog-ic{display:grid;place-items:center;height:22px}
 .ver-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
 .ver-link{appearance:none;background:none;border:0;padding:6px 2px;font-family:var(--font-body);font-size:11px;font-weight:900;letter-spacing:.04em;color:var(--cream);text-shadow:var(--outline-sm);text-decoration:underline;text-underline-offset:3px;cursor:pointer;touch-action:manipulation}
 .ver-link:focus-visible{outline:3px solid var(--rose);outline-offset:2px;border-radius:6px}
@@ -213,10 +223,30 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
       <svg class="seed-ic" width="14" height="20" viewBox="0 0 14 20" aria-hidden="true"><path class="b" d="M7 1.2C11.5 3.5 12 12 7 18.8 2 12 2.5 3.5 7 1.2Z"/><path class="s" d="M5.6 4.5c-1.2 4-1 8 .2 11.5M8.6 4.5c1.2 4 1 8-.2 11.5"/></svg>
       <span id="hSeeds">0</span>
     </div>
-    <button class="icon-btn" id="musicBtn" type="button" aria-label="Музыка"></button>
-    <button class="icon-btn" id="mute" type="button" aria-label="Звук"></button>
+    <button class="icon-btn" id="pauseBtn" type="button" aria-label="Пауза"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6" y="5" width="4.2" height="14" rx="1.4" fill="currentColor"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.4" fill="currentColor"/></svg></button>
   </div>
 </div>
+
+<section class="sheet pause" id="pause" hidden>
+  <div class="card pause-card">
+    <h2 class="pause-title">Пауза</h2>
+    <p class="pause-say" id="pauseSay"></p>
+    <dl class="stats">
+      <div><dt>Высота</dt><dd id="pAlt">0</dd></div>
+      <div><dt>Семечки</dt><dd id="pSeeds">0</dd></div>
+      <div><dt>Мир</dt><dd id="pZone">Каньон</dd></div>
+    </dl>
+    <div class="toggles">
+      <button class="tog" id="musicBtn" type="button" aria-pressed="true"><span class="tog-ic" id="musicIc"></span><span class="tog-t" id="musicT">Музыка</span></button>
+      <button class="tog" id="mute" type="button" aria-pressed="false"><span class="tog-ic" id="muteIc"></span><span class="tog-t" id="muteT">Звук</span></button>
+      <button class="tog" id="talkBtn" type="button" aria-pressed="true"><span class="tog-ic" id="talkIc"></span><span class="tog-t" id="talkT">Фразы</span></button>
+    </div>
+    <div class="btns">
+      <button class="btn" id="resume" type="button">Продолжить</button>
+      <button class="btn alt-btn sm" id="pauseMenu" type="button">В меню</button>
+    </div>
+  </div>
+</section>
 
 <section class="sheet start" id="start" hidden>
   <div class="head">
@@ -225,8 +255,9 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
     <div class="head-row">
       <button class="replay" id="replayIntro" type="button">Смотреть заставку</button>
       <button class="replay" id="musicStart" type="button" aria-pressed="true">Музыка: вкл</button>
+      <button class="replay" id="talkStart" type="button" aria-pressed="true">Фразы: вкл</button>
     </div>
-    <div class="ver-row"><span class="ver">версия 9</span><button class="ver-link" id="oldVer" type="button" hidden>вернуть версию 8</button></div>
+    <div class="ver-row"><span class="ver">версия 10</span><button class="ver-link" id="oldVer" type="button" hidden>вернуть версию 9</button></div>
   </div>
   <div class="card">
     <canvas class="princess-peek" id="pStart" aria-label="Дашуля машет рукой"></canvas>
@@ -332,7 +363,7 @@ body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body
 'use strict';
 const TAU = Math.PI * 2;
 /* SLOW < 1 замедляет прыжки по времени, не меняя их траекторию: g·k², v·k */
-const SLOW = 0.89;
+const SLOW = 0.94;
 const W = 360, GRAV = 1800 * SLOW * SLOW, JVX = 345 * SLOW, JVY = 760 * SLOW, DJVY = 690 * SLOW, RUN = 165;
 const HW = 12, HH = 12, UNIT = 2.6, STEP = 1 / 240, FLIP = 0.4;
 const ZONE_CM = 1200, ZONE = ZONE_CM * UNIT, AIR_MAX = 14, INTRO_END = 13.2;
@@ -348,9 +379,9 @@ const C = {
 /* ---------- difficulty ---------- */
 /* starWorlds: в конце какого мира стоит пьедестал со звездой */
 const DIFFS = {
-  easy:   { id:'easy',   name:'Лёгкий',  grip:0.5,  slide:0.5,  hearts:0.3,  haz:0.45, ramp:60, lava:0.6,  spawn:1.8,  laserOn:0.8, air:0.7,  trun:185, tlen:[650, 850],   gap:[290, 360], minV:6, spikesMax:2, starWorlds:3, next:'normal', prev:null },
-  normal: { id:'normal', name:'Обычный', grip:0.38, slide:0.6,  hearts:0.2,  haz:0.75, ramp:40, lava:0.85, spawn:1.25, laserOn:1,   air:0.9,  trun:200, tlen:[900, 1150],  gap:[220, 290], minV:6, spikesMax:3, starWorlds:4, next:'hard',   prev:'easy' },
-  hard:   { id:'hard',   name:'Сложный', grip:0.28, slide:0.7,  hearts:0.12, haz:1.1,  ramp:28, lava:1.1,  spawn:0.9,  laserOn:1.2, air:1.15, trun:215, tlen:[1200, 1500], gap:[170, 230], minV:5, spikesMax:4, starWorlds:4, next:null,     prev:'normal' }
+  easy:   { id:'easy',   name:'Лёгкий',  grip:0.32, slide:0.62, hearts:0.1,  heartMax:2,  haz:0.45, ramp:60, lava:0.6,  spawn:1.8,  laserOn:0.8, air:0.7,  trun:185, tlen:[650, 850],   gap:[290, 360], minV:6, spikesMax:2, starWorlds:3, next:'normal', prev:null },
+  normal: { id:'normal', name:'Обычный', grip:0.24, slide:0.74, hearts:0.06, heartMax:1,  haz:0.75, ramp:40, lava:0.85, spawn:1.25, laserOn:1,   air:0.9,  trun:200, tlen:[900, 1150],  gap:[220, 290], minV:6, spikesMax:3, starWorlds:4, next:'hard',   prev:'easy' },
+  hard:   { id:'hard',   name:'Сложный', grip:0.16, slide:0.85, hearts:0.035, heartMax:1, haz:1.1,  ramp:28, lava:1.1,  spawn:0.9,  laserOn:1.2, air:1.15, trun:215, tlen:[1200, 1500], gap:[170, 230], minV:5, spikesMax:4, starWorlds:4, next:null,     prev:'normal' }
 };
 const starMeters = D => D.starWorlds * 12 - 2;
 const COSMIC = new Set(['space', 'moon', 'mars']);
@@ -790,7 +821,7 @@ const THEMES = {
 const MUS = { theme: null, want: 'menu', pending: null, step: 0, nextT: 0, loop: 0, bus: null, out: null, wet: null, dly: null, noise: null, timer: 0 };
 const MUS_LEVEL = 0.7;
 let musicOn = load('hk_music', 1) === 1;
-const musicTarget = () => musicOn && !muted ? MUS_LEVEL : 0;
+const musicTarget = () => musicOn && !muted ? MUS_LEVEL * (typeof paused !== 'undefined' && paused ? 0.4 : 1) : 0;
 function initMusic(){
   if (MUS.bus || !actx) return;
   MUS.bus = actx.createGain(); MUS.out = actx.createGain(); MUS.out.gain.value = 0;
@@ -920,7 +951,8 @@ function nextLove(bioId){
   if (!loveBag.length) loveBag = shuffle(LOVE);
   return loveBag.pop();
 }
-function hamsterSay(text, dur){ say = { text, t: 0, dur: dur || 3.6 }; }
+let talkOn = load('hk_talk', 1) === 1;
+function hamsterSay(text, dur){ if (!talkOn) return; say = { text, t: 0, dur: dur || 3.6 }; }
 function talkLine(kind, bioId){
   const T = SKIN_TALK[skinId];
   if (T && T[kind] && T[kind].length) return pick(T[kind]);
@@ -936,6 +968,7 @@ function reset(menu){
   blocks = []; chunks = []; thorns = []; burrs = []; flyers = []; seeds = []; airs = []; icicles = []; lasers = []; devils = [];
   fireballs = []; meteors = []; parts = []; floaters = []; plats = []; walkers = []; fspikes = []; pads = []; lifts = []; jets = [];
   pits = []; rollers = []; leapers = []; hearts = [];
+  for (const k in heartsInZone) delete heartsInZone[k];
   chunkIdx = 0; vRun = 0;
   starObj = null; starPlaced = false; runStar = false; unlockedNow = ''; chatT = rand(16, 26);
   starAvailRun = diffId === 'hard' || !gotStar[diffId];
@@ -1041,7 +1074,11 @@ function genStarRoom(prev, idx, y0, zone, bio){
   seeds.push({ x: xEnd - dir * 58, y: F + 70, ph: 0 }); seeds.push({ x: xEnd - dir * 40, y: F + 150, ph: 1 }); seeds.push({ x: xEnd - dir * 30, y: F + 230, ph: 2 });
 }
 /* Сердечко-щит лежит в спокойном месте шахты */
+const heartsInZone = {};
+function heartRoom(zone){ return (heartsInZone[zone] || 0) < DF.heartMax; }
 function addHeart(c){
+  if (!heartRoom(c.zone)) return;
+  heartsInZone[c.zone] = (heartsInZone[c.zone] || 0) + 1;
   for (let k = 0; k < 6; k++){
     const x = rand(c.L + 50, c.R - 50), y = rand(c.y0 + 60, Math.max(c.y0 + 61, c.y1 - 50));
     if (!nearHazard(x, y) && !seeds.some(sd => Math.abs(sd.x - x) < 26 && Math.abs(sd.y - y) < 26)){ hearts.push({ x, y, ph: rand(0, TAU) }); return; }
@@ -1146,7 +1183,7 @@ function tunnelObstacle(k, c, bio, s, wx, F, seedArc, seedRow){
 /* Комнаты с платформами — только в космосе, на Луне и Марсе */
 function genRoom(prev, idx, d, y0, zone, bio, first, rem){
   const H = Math.max(380, Math.min(rand(400, 500), rem - 220));
-  const width = rand(470, 570 + 40 * d);
+  const width = rand(500, 620 + 50 * d);
   const entryLeft = Math.random() < 0.5;
   const exitW = rand(198, 232), eOff = rand(18, 50);
   let rL, rR;
@@ -1169,13 +1206,13 @@ function genRoom(prev, idx, d, y0, zone, bio, first, rem){
       if (c.exitSide === 'R'){ x0 = c.exitL - rand(125, 165); x1 = c.exitL + 46; }
       else { x0 = c.exitR - 46; x1 = c.exitR + rand(125, 165); }
     } else {
-      const u = k / (n + 1), w = rand(165, 220);
+      const u = k / (n + 1), w = rand(150, 205);
       const cxp = lerp(entryX, exitC, u) + (k % 2 ? -1 : 1) * rand(40, 90);
       x0 = cxp - w / 2; x1 = cxp + w / 2;
     }
     x0 = Math.max(x0, rL + 14); x1 = Math.min(x1, rR - 14);
     const pl = { x: x0, y: py, w: x1 - x0, bio: bio.id, ice: false };
-    if (k < n && idx > 3 && (bio.id === 'space' || bio.id === 'moon') && Math.random() < 0.3) pl.mv = { x0: pl.x, amp: rand(25, 45), sp: rand(0.5, 0.85), ph: rand(0, TAU) };
+    if (k < n && idx > 3 && (bio.id === 'space' || bio.id === 'moon') && Math.random() < 0.38) pl.mv = { x0: pl.x, amp: rand(30, 55), sp: rand(0.6, 1.0), ph: rand(0, TAU) };
     plats.push(pl); rp.push(pl);
   }
   for (const pl of rp) for (let i = 0; i < 3; i++) seeds.push({ x: pl.x + pl.w * (i + 1) / 4, y: pl.y + 30, ph: rand(0, TAU), plat: pl.mv ? pl : null, off: pl.w * (i + 1) / 4 });
@@ -1183,13 +1220,13 @@ function genRoom(prev, idx, d, y0, zone, bio, first, rem){
   if (prev.L - rL > 90) floors.push({ x0: rL + 20, x1: prev.L - 20, y: y0 });
   if (rR - prev.R > 90) floors.push({ x0: prev.R + 20, x1: rR - 20, y: y0 });
   for (const f of floors) for (let i = 0; i < 3; i++){ const u = (i + 0.5) / 3; seeds.push({ x: lerp(f.x0, f.x1, u), y: f.y + 26 + Math.sin(u * Math.PI) * 30, ph: rand(0, TAU) }); }
-  if (rp.length > 1 && Math.random() < DF.hearts * 1.5){ const hp = rp[Math.floor(rp.length / 2) - 1] || rp[0]; if (!hp.mv) hearts.push({ x: hp.x + hp.w / 2, y: hp.y + 58, ph: rand(0, TAU) }); }
+  if (rp.length > 1 && Math.random() < DF.hearts && heartRoom(zone)){ const hp = rp[Math.floor(rp.length / 2) - 1] || rp[0]; if (!hp.mv){ heartsInZone[zone] = (heartsInZone[zone] || 0) + 1; hearts.push({ x: hp.x + hp.w / 2, y: hp.y + 58, ph: rand(0, TAU) }); } }
   if (first || idx < 3) return;
   let rw = 0;
-  for (const pl of rp){ if (rw < 2 && pl.w > 170 && !pl.mv && ch(0.22 + 0.2 * d)){ addWalker(bio, pl.x + 14, pl.x + pl.w - 14, pl.y, pl); rw++; } }
-  for (const f of floors){ if (f.x1 - f.x0 > 130 && ch(0.3)) addWalker(bio, f.x0, f.x1, f.y, null); }
+  for (const pl of rp){ if (rw < 2 && pl.w > 150 && !pl.mv && ch(0.3 + 0.25 * d)){ addWalker(bio, pl.x + 14, pl.x + pl.w - 14, pl.y, pl); rw++; } }
+  for (const f of floors){ if (f.x1 - f.x0 > 120 && ch(0.4)) addWalker(bio, f.x0, f.x1, f.y, null); }
   for (const pl of rp.slice(0, -1)){
-    if (pl.w > 180 && !pl.mv && ch(0.12 + 0.15 * d)){
+    if (pl.w > 160 && !pl.mv && ch(0.17 + 0.18 * d)){
       const sw = rand(24, 34), sx = pl.x + pl.w * rand(0.35, 0.65) - sw / 2;
       fspikes.push({ x0: sx, x1: sx + sw, y: pl.y, style: bio.spike, plat: pl.mv ? pl : null, off: sx - pl.x });
     }
@@ -1202,15 +1239,15 @@ function genRoom(prev, idx, d, y0, zone, bio, first, rem){
   const padOn = (surf) => { if (surf.mv || !bio.pad) return; const x = surf.x != null ? surf.x + surf.w * rand(0.25, 0.75) : rand(surf.x0 + 20, surf.x1 - 20); pads.push({ x, y: surf.y, w: 30, kind: bio.pad, bio: bio.id, sq: 0 }); };
   switch (bio.id){
     case 'space': {
-      const nl = (ch(0.55) ? 1 : 0) + (d > 0.5 && ch(0.2 + 0.2 * d) ? 1 : 0);
+      const nl = (ch(0.65) ? 1 : 0) + (d > 0.35 && ch(0.25 + 0.25 * d) ? 1 : 0);
       for (let i = 0; i < nl; i++){
         const per = rand(2.6, 3.4), x = lerp(rL + 80, rR - 80, (i + 0.5) / Math.max(1, nl)) + rand(-40, 40);
         if (Math.abs(x - entryX) < 60 || Math.abs(x - exitC) < 70) continue;
-        lasers.push({ v: true, x, y0, y1: c.y1, per, on: (0.8 + 0.25 * d) * DF.laserOn, ph: rand(0, per), warn: 0.9 });
+        lasers.push({ v: true, x, y0, y1: c.y1, per, on: (0.9 + 0.25 * d) * DF.laserOn, ph: rand(0, per), warn: 0.75 });
       }
       if (Math.random() < 0.5) padOn(rp[0]);
       if (Math.random() < 0.45){ const x = rand(rL + 60, rR - 60); if (Math.abs(x - exitC) > 120) lifts.push({ x, y0: y0, y1: y0 + H * 0.72, w: 46, kind: 'beam' }); }
-      if (ch(0.22)) roomFlyer('asteroid', 14, rand(55, 85));
+      if (ch(0.3)) roomFlyer('asteroid', 14, rand(65, 100));
       break;
     }
     case 'moon':
@@ -1220,7 +1257,7 @@ function genRoom(prev, idx, d, y0, zone, bio, first, rem){
     case 'mars': {
       const f = floors[0];
       if (f && f.x1 - f.x0 > 80){ const sp = rand(40, 70); devils.push({ x: (f.x0 + f.x1) / 2, y: f.y + 36, vx: Math.random() < 0.5 ? sp : -sp, L: f.x0 - 24, R: f.x1 + 24, cd: 0, ph: rand(0, TAU) }); }
-      if (ch(0.18 + 0.22 * d)) roomFlyer('drone', 13, rand(60, 95));
+      if (ch(0.24 + 0.26 * d)) roomFlyer('drone', 13, rand(70, 110));
       break;
     }
   }
@@ -1279,9 +1316,9 @@ function addHazards(c, d, bio){
       break;
     }
     case 'space': {
-      const hasLaser = ch(0.35 + 0.25 * d);
-      if (hasLaser){ const per = rand(2.8, 3.6); lasers.push({ y: c.y0 + h * rand(0.3, 0.7), L: c.L, R: c.R, per, on: (0.8 + 0.25 * d) * DF.laserOn, ph: rand(0, per), warn: 0.9 }); }
-      if (!hasLaser || (d > 0.6 && ch(0.3))){ if (ch(0.3 + 0.2 * d)) flyer('asteroid', 14, rand(50, 80 + 40 * d)); }
+      const hasLaser = ch(0.42 + 0.28 * d);
+      if (hasLaser){ const per = rand(2.8, 3.6); lasers.push({ y: c.y0 + h * rand(0.3, 0.7), L: c.L, R: c.R, per, on: (0.9 + 0.25 * d) * DF.laserOn, ph: rand(0, per), warn: 0.75 }); }
+      if (!hasLaser || (d > 0.6 && ch(0.3))){ if (ch(0.33 + 0.22 * d)) flyer('asteroid', 14, rand(55, 90 + 50 * d)); }
       break;
     }
     case 'water': {
@@ -1290,8 +1327,8 @@ function addHazards(c, d, bio){
       break;
     }
     case 'mars': {
-      if (Math.random() < 0.3){ const sp = rand(35, 60); devils.push({ x: rand(c.L + 40, c.R - 40), y: c.y0 + h * rand(0.3, 0.6), vx: Math.random() < 0.5 ? sp : -sp, L: c.L, R: c.R, cd: 0, ph: rand(0, TAU) }); }
-      if (ch(0.1 + 0.2 * d)) flyer('drone', 13, rand(55, 85 + 35 * d));
+      if (Math.random() < 0.35){ const sp = rand(38, 65); devils.push({ x: rand(c.L + 40, c.R - 40), y: c.y0 + h * rand(0.3, 0.6), vx: Math.random() < 0.5 ? sp : -sp, L: c.L, R: c.R, cd: 0, ph: rand(0, TAU) }); }
+      if (ch(0.13 + 0.22 * d)) flyer('drone', 13, rand(62, 100 + 40 * d));
       break;
     }
   }
@@ -1436,7 +1473,7 @@ function stepPlayer(h){
       } else {
         p.wb = wb;
         if (wb.hot && state === 'play'){ p.hotT += h; if (p.hotT > 0.22) hotBounce(); }
-        if (wb.crust){ wb.crustT += h; if (wb.crustT > 0.65) crumble(wb); }
+        if (wb.crust){ wb.crustT += h; if (wb.crustT > 0.55) crumble(wb); }
       }
     }
   } else if (p.mode === 'air'){
@@ -1461,7 +1498,7 @@ function stepPlayer(h){
     p.vy = -40;
     if (moveY(h) !== 'land'){ p.mode = 'air'; p.gco = 0.1; p.vy = 0; }
     else if (p.gb && p.gb.hot && state === 'play'){ p.hotT += h; if (p.hotT > 0.22){ p.hotT = 0; groundJump(); floatText(p.x, p.y + 14, 'Ай!', '#FF9A5A'); sfx.hot(); } }
-    else if (p.gb && p.gb.crust){ p.gb.crustT += h; if (p.gb.crustT > 0.65) crumble(p.gb); }
+    else if (p.gb && p.gb.crust){ p.gb.crustT += h; if (p.gb.crustT > 0.55) crumble(p.gb); }
   }
 }
 function hotBounce(){
@@ -1684,9 +1721,15 @@ function updateParts(dt){
 }
 
 /* ---------- world update ---------- */
+let seenWorlds = loadStr('hk_seen', '').split(',').filter(Boolean);
+function worldBanner(b, cm){
+  if (seenWorlds.indexOf(b.id) >= 0) return;
+  seenWorlds.push(b.id); store('hk_seen', seenWorlds.join(','));
+  banner = { name: b.name, hint: b.hint, cm, t: 0 };
+}
 function onEnterZone(z){
   const b = BIOMES[biomeOfZone(z)];
-  banner = { name: b.name, hint: b.hint, cm: z * ZONE_CM, t: 0 };
+  worldBanner(b, z * ZONE_CM);
   hamsterSay(talkLine('love', b.id), 4);
   if (b.water){ airT = AIR_MAX; airWarned = false; }
   if (b.id === 'volcano') lava = { zone: z, y: z * ZONE - 380, cap: (z + 1) * ZONE - 30 };
@@ -1703,11 +1746,11 @@ function zoneSpawners(dt){
   }
   if (B.id === 'moon' && cm && !inTun){
     mtT -= dt;
-    if (mtT <= 0){ mtT = Math.max(1.1, (rand(1.7, 2.8) - 0.4 * d) * DF.spawn); meteors.push({ x: rand(Math.max(cm.L, camX) + 24, Math.min(cm.R, camX + viewW) - 24), y: camY + LH + 40, vx: rand(-25, 25), vy: 0, warn: 1.2 }); }
+    if (mtT <= 0){ mtT = Math.max(0.9, (rand(1.45, 2.4) - 0.4 * d) * DF.spawn); meteors.push({ x: rand(Math.max(cm.L, camX) + 24, Math.min(cm.R, camX + viewW) - 24), y: camY + LH + 40, vx: rand(-30, 30), vy: 0, warn: 1.05 }); }
   }
   if (B.id === 'mars'){
     windT -= dt;
-    if (windT <= 0){ windT = rand(2.6, 4); windTarget = pick([-1, 1, -1, 1, 0, 0]) * 160 * (DF.id === 'easy' ? 0.6 : DF.id === 'normal' ? 0.85 : 1); }
+    if (windT <= 0){ windT = rand(2.6, 4); windTarget = pick([-1, 1, -1, 1, 0]) * 190 * (DF.id === 'easy' ? 0.6 : DF.id === 'normal' ? 0.85 : 1); }
   } else windTarget = 0;
   if (B.water && inTun && tunnelAt(p.y).star) airT = Math.min(AIR_MAX, airT + dt * 6);
   else if (B.water){
@@ -1839,7 +1882,7 @@ function update(dt){
   }
   for (let i = meteors.length - 1; i >= 0; i--){
     const m = meteors[i];
-    if (m.warn > 0){ m.warn -= dt; m.y = camY + LH + 40; if (m.warn <= 0) m.vy = -470; }
+    if (m.warn > 0){ m.warn -= dt; m.y = camY + LH + 40; if (m.warn <= 0) m.vy = -510; }
     else { m.y += m.vy * dt; m.x += m.vx * dt; if (m.y < camY - 80) meteors.splice(i, 1); }
   }
   updateParts(dt);
@@ -2306,7 +2349,7 @@ let roomTalk = null;
 function drawRoomTalk(){
   if (state !== 'play' && state !== 'dead') return;
   const c = chunkAt(p.y);
-  if (!c || !c.star || !c.entered || say){ roomTalk = null; return; }
+  if (!c || !c.star || !c.entered || say || !talkOn){ roomTalk = null; return; }
   const s = starObj, done = s && s.room === c && (s.got || !s.avail);
   const text = done ? (s.got ? 'Мой герой! Беги дальше, я тебя жду' : 'Отдохни, хомячок, и вперёд!') : 'Беги ко мне, хомячок! Звёздочка твоя!';
   if (!roomTalk || roomTalk.text !== text) roomTalk = { text, t: 0 };
@@ -3960,9 +4003,9 @@ function updateHud(){
 }
 function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
 function renderMute(){
-  muteBtn.setAttribute('aria-pressed', muted ? 'true' : 'false');
-  muteBtn.setAttribute('aria-label', muted ? 'Включить звук' : 'Выключить звук');
-  muteBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/>' +
+  muteBtn.setAttribute('aria-pressed', muted ? 'false' : 'true');
+  $('muteT').textContent = muted ? 'Звук выкл' : 'Звук вкл';
+  $('muteIc').innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/>' +
     (muted ? '<path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'
            : '<path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>') + '</svg>';
   renderMusic();
@@ -3970,15 +4013,62 @@ function renderMute(){
 const musicBtn = $('musicBtn'), musicStart = $('musicStart');
 function renderMusic(){
   const on = musicOn && !muted;
-  musicBtn.setAttribute('aria-pressed', musicOn ? 'true' : 'false');
-  musicBtn.setAttribute('aria-label', musicOn ? 'Выключить музыку' : 'Включить музыку');
-  musicBtn.style.opacity = muted ? '0.55' : '';
-  musicBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
+  musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  $('musicT').textContent = on ? 'Музыка вкл' : 'Музыка выкл';
+  $('musicIc').innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
     '<path d="M9 17.5V6.2l10-2.2v11.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>' +
     '<ellipse cx="6.6" cy="17.6" rx="2.9" ry="2.3" fill="currentColor"/><ellipse cx="16.6" cy="15.4" rx="2.9" ry="2.3" fill="currentColor"/>' +
     (on ? '' : '<path d="M3.5 3.5l17 17" style="stroke:var(--cream)" stroke-width="4.2" stroke-linecap="round"/><path d="M3.5 3.5l17 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>') + '</svg>';
   musicStart.setAttribute('aria-pressed', musicOn ? 'true' : 'false');
   musicStart.textContent = musicOn ? 'Музыка: вкл' : 'Музыка: выкл';
+}
+function renderTalk(){
+  $('talkBtn').setAttribute('aria-pressed', talkOn ? 'true' : 'false');
+  $('talkT').textContent = talkOn ? 'Фразы вкл' : 'Фразы выкл';
+  $('talkIc').innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5h16a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 17h-9l-5 4v-4H4a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 4 5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>' +
+    (talkOn ? '<path d="M7.5 10h9M7.5 13h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' : '<path d="M3.5 3.5l17 17" style="stroke:var(--cream-2)" stroke-width="4.2" stroke-linecap="round"/><path d="M3.5 3.5l17 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>') + '</svg>';
+  const ts = $('talkStart'); ts.setAttribute('aria-pressed', talkOn ? 'true' : 'false'); ts.textContent = talkOn ? 'Фразы: вкл' : 'Фразы: выкл';
+}
+function toggleTalk(e){
+  if (e) e.stopPropagation();
+  talkOn = !talkOn; store('hk_talk', talkOn ? 1 : 0);
+  if (!talkOn){ say = null; roomTalk = null; }
+  renderTalk();
+}
+const PAUSE_LINES = ['Отдохни, хомячок, я подожду', 'Попей водички и возвращайся!', 'Я никуда не ухожу, малыш', 'Передышка — это тоже часть пути', 'Звёздочка подождёт, а я тем более'];
+let paused = false, resumeT = 0;
+const pauseEl = $('pause');
+function pauseGame(){
+  if (state !== 'play' || paused) return;
+  paused = true; resumeT = 0; jumpBuffer = 0;
+  $('pauseSay').textContent = 'Дашуля: ' + pick(PAUSE_LINES);
+  $('pAlt').textContent = fmt(Math.floor(maxY / UNIT)) + ' см';
+  $('pSeeds').textContent = runSeeds;
+  $('pZone').textContent = curBio.name;
+  pauseEl.hidden = false; musicVolume();
+  setTimeout(() => { try { $('resume').focus({ preventScroll: true }); } catch (e) {} }, 0);
+}
+function resumeGame(){
+  if (!paused) return;
+  paused = false; pauseEl.hidden = true; resumeT = 1.5; last = 0; musicVolume(); ensureAudio();
+}
+function quitRun(){
+  if (!paused) return;
+  paused = false; resumeT = 0; pauseEl.hidden = true;
+  const cm = Math.floor(maxY / UNIT);
+  if (cm > best){ best = cm; bests[diffId] = cm; store('hk_best_' + diffId, best); }
+  wallet += runSeeds; saveWallet();
+  musicVolume(); backToMenu();
+}
+function drawCountdown(){
+  if (resumeT <= 0) return;
+  const n = Math.ceil(resumeT / 0.5), u = resumeT / 0.5 - Math.floor(resumeT / 0.5);
+  cx.save(); cx.translate(viewW / 2, LH * 0.42); cx.scale(0.8 + u * 0.4, 0.8 + u * 0.4);
+  cx.globalAlpha = Math.min(1, u * 2 + 0.2);
+  cx.font = '800 64px Unbounded, "Arial Black", sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+  cx.lineWidth = 9; cx.strokeStyle = INK; cx.lineJoin = 'round'; cx.strokeText(String(n), 0, 0);
+  cx.fillStyle = CREAM; cx.fillText(String(n), 0, 0);
+  cx.restore();
 }
 function toggleMusic(e){
   if (e) e.stopPropagation();
@@ -4058,9 +4148,8 @@ function begin(){
   if (state !== 'menu') return;
   ensureAudio();
   state = 'play'; startEl.hidden = true; hud.hidden = false; lastHud = {};
-  banner = { name: BIOMES.canyon.name, hint: BIOMES.canyon.hint, cm: 0, t: 0 };
+  banner = null; worldBanner(BIOMES.canyon, 0);
   hamsterSay(talkLine('start'), 3);
-  p.shield = diffId === 'easy';
   try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {}); } catch (e) {}
 }
 function pickPhrase(){
@@ -4095,8 +4184,8 @@ function showOver(){
 function refreshOverStats(){ $('oBest').textContent = fmt(best); $('oSeeds').textContent = runSeeds; $('oWallet').textContent = fmt(wallet); }
 function restart(){
   if (state !== 'over' || !shopEl.hidden) return;
-  reset(false); state = 'play'; overEl.hidden = true; hud.hidden = false; lastHud = {}; p.shield = diffId === 'easy';
-  banner = { name: BIOMES.canyon.name, hint: BIOMES.canyon.hint, cm: 0, t: 0 };
+  reset(false); state = 'play'; overEl.hidden = true; hud.hidden = false; lastHud = {};
+  banner = null; worldBanner(BIOMES.canyon, 0);
   hamsterSay(talkLine('start'), 3);
   updateHud();
 }
@@ -4107,7 +4196,7 @@ function replayIntro(){
   if (state !== 'menu') return;
   state = 'intro'; introT = 0; startEl.hidden = true;
 }
-function pressJump(){ ensureAudio(); if (state === 'intro'){ endIntro(); return; } if (state === 'play'){ jumpBuffer = 0.16; tryJump(); } }
+function pressJump(){ ensureAudio(); if (state === 'intro'){ endIntro(); return; } if (state === 'play' && !paused && resumeT <= 0){ jumpBuffer = 0.16; tryJump(); } }
 
 /* ---------- shop ---------- */
 let shopFrom = 'start';
@@ -4276,8 +4365,8 @@ $('replayIntro').addEventListener('click', replayIntro);
   let armedAt = -1e9;
   b.addEventListener('click', e => {
     e.stopPropagation();
-    if (performance.now() - armedAt > 3000){ armedAt = performance.now(); b.textContent = 'точно? нажми ещё раз'; setTimeout(() => { if (performance.now() - armedAt >= 2900) b.textContent = 'вернуть версию 8'; }, 3000); return; }
-    store('hk_ver', '8'); location.href = 'v8/';
+    if (performance.now() - armedAt > 3000){ armedAt = performance.now(); b.textContent = 'точно? нажми ещё раз'; setTimeout(() => { if (performance.now() - armedAt >= 2900) b.textContent = 'вернуть версию 9'; }, 3000); return; }
+    store('hk_ver', '9'); location.href = 'v9/';
   });
 })();
 for (const b of document.querySelectorAll('.diff-btn')) b.addEventListener('click', () => setDiff(b.dataset.d));
@@ -4292,8 +4381,14 @@ $('cvUse').addEventListener('click', onUseCoupon);
 $('menuOver').addEventListener('click', backToMenu);
 muteBtn.addEventListener('click', e => { e.stopPropagation(); muted = !muted; store('hk_muted', muted ? 1 : 0); renderMute(); if (!muted) ensureAudio(); musicVolume(); });
 musicBtn.addEventListener('click', toggleMusic);
+$('talkBtn').addEventListener('click', toggleTalk);
+$('talkStart').addEventListener('click', toggleTalk);
+$('pauseBtn').addEventListener('click', e => { e.stopPropagation(); pauseGame(); });
+$('resume').addEventListener('click', e => { e.stopPropagation(); resumeGame(); });
+$('pauseMenu').addEventListener('click', e => { e.stopPropagation(); quitRun(); });
 musicStart.addEventListener('click', toggleMusic);
 document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state === 'play') pauseGame();
   if (!actx) return;
   try { if (document.hidden) actx.suspend(); else if (actx.state !== 'running') actx.resume(); } catch (e) {}
 });
@@ -4302,6 +4397,8 @@ document.addEventListener('touchmove', e => { const tg = e.target; if (tg.closes
 document.addEventListener('touchend', () => ensureAudio(), { passive: true });
 document.addEventListener('contextmenu', e => e.preventDefault());
 window.addEventListener('keydown', e => {
+  if (state === 'play' && (e.code === 'Escape' || e.code === 'KeyP')){ e.preventDefault(); if (paused) resumeGame(); else pauseGame(); return; }
+  if (paused){ if (e.code === 'Space' || e.code === 'Enter'){ if (!(e.target && e.target.tagName === 'BUTTON')){ e.preventDefault(); resumeGame(); } } return; }
   if (e.code === 'Escape' && !cviewEl.hidden){ closeCoupon(); return; }
   if (e.code === 'Escape' && !starsEl.hidden){ closeStars(); return; }
   if (e.code === 'Escape' && !shopEl.hidden){ closeShop(); return; }
@@ -4329,7 +4426,9 @@ function nextIdle(){
 function frame(now){
   let dt = last ? (now - last) / 1000 : 0; last = now;
   if (dt > 0.05) dt = 0.05;
-  update(dt); render();
+  if (paused) render();
+  else if (resumeT > 0){ resumeT -= dt; render(); drawCountdown(); }
+  else { update(dt); render(); }
   if (state === 'play') MUS.want = biomeOfZone(zoneOf(Math.max(maxY, p.y)));
   else if (state === 'intro' || state === 'menu') MUS.want = 'menu';
   if (!startEl.hidden){ paintGirl(pStart, 'cheer', 'wave'); idleT -= dt; if (idleT <= 0){ idleT = 4.5; nextIdle(); } }
@@ -4340,7 +4439,7 @@ function frame(now){
 }
 function boot(data){
   if (data && typeof data.best === 'number' && data.best > bests.normal){ bests.normal = data.best; if (diffId === 'normal') best = data.best; }
-  resize(); reset(true); renderMute(); refreshStart();
+  resize(); reset(true); renderMute(); renderTalk(); refreshStart();
   state = 'intro'; introT = 0;
   requestAnimationFrame(frame);
   if (document.fonts && document.fonts.load){ document.fonts.load('800 12px Unbounded'); document.fonts.load('900 12px Nunito'); }
